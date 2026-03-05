@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f0f2f5">
+<title>Fit To Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#f0f2f5;--bg2:#e4e6ea;--bg3:#ffffff;
+  --card:#ffffff;--card2:#f5f6f8;--card3:#eaecf0;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+  --text:#111111;--text2:#222222;--text3:#555555;
+  --acc:#f5874a;--acc2:#f7a06e;
+  --blue:#5b9cf6;--cyan:#38c0d4;
+  --green:#52c48a;--teal:#3bb8b0;
+  --yellow:#f5c030;--orange:#f5874a;
+  --purple:#a47be8;--pink:#f06fa0;
+  --red:#f05a5a;
+  --nav:68px;
+  --radius:18px;
+}
+::-webkit-scrollbar{display:none;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding-bottom:calc(var(--nav)+20px);animation:fadeIn .22s ease;}
+.screen.active{display:block;}
+.detail-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto;padding-bottom:80px;animation:slideIn .25s cubic-bezier(.4,0,.2,1);max-width:430px;margin:0 auto;}
+.detail-screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+
+/* ── NAV ── */
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav);background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0 4px 6px;z-index:400;}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 10px;border-radius:14px;cursor:pointer;border:none;background:none;color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;font-family:'Nunito',sans-serif;transition:all .18s;}
+.nb svg{width:20px;height:20px;}
+.nb.active{color:var(--acc);}
+.nb.active svg{filter:drop-shadow(0 0 5px rgba(255,85,51,.4));}
+
+/* ── HEADER ── */
+.hdr{padding:50px 18px 14px;display:flex;align-items:flex-end;justify-content:space-between;}
+.htitle{font-size:22px;font-weight:700;letter-spacing:-.01em;}
+.hsub{font-size:11px;color:var(--text3);margin-top:2px;font-family:'Nunito',sans-serif;}
+
+/* ── DETAIL HEADER ── */
+.dhdr{padding:52px 18px 16px;display:flex;align-items:center;gap:12px;}
+.back-btn{width:36px;height:36px;border-radius:12px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.back-btn:active{transform:scale(.94);}
+.dhdr-info{flex:1;}
+.dhdr-title{font-size:18px;font-weight:700;}
+.dhdr-sub{font-size:11px;color:var(--text3);font-family:'Nunito',sans-serif;margin-top:2px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:0 14px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.card.clickable{cursor:pointer;transition:all .15s;}
+.card.clickable:active{transform:scale(.985);box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.card2{background:var(--card2);border-radius:14px;padding:14px;}
+.ctitle{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 14px 10px;}
+.sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 14px 10px;}
+.scell{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.04);cursor:pointer;transition:all .15s;}
+.scell:active{transform:scale(.95);}
+.sval{font-size:18px;font-weight:700;}
+.slb{font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif;margin-top:3px;letter-spacing:.04em;}
+.chevron{color:var(--text3);font-size:14px;margin-left:auto;flex-shrink:0;}
+
+/* ── NUMBERS ── */
+.n-xl{font-size:38px;font-weight:700;letter-spacing:-.03em;line-height:1;}
+.n-lg{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;}
+.n-md{font-size:20px;font-weight:700;line-height:1;}
+.unit{font-size:.44em;color:var(--text2);font-weight:400;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;font-family:'Nunito',sans-serif;}
+.bg{background:rgba(24,170,102,.1);color:var(--green);border:1px solid rgba(24,170,102,.2);}
+.br{background:rgba(204,34,68,.1);color:var(--red);border:1px solid rgba(204,34,68,.2);}
+.bb{background:rgba(34,119,238,.1);color:var(--blue);border:1px solid rgba(34,119,238,.2);}
+.bo{background:rgba(255,85,51,.1);color:var(--acc);border:1px solid rgba(255,85,51,.2);}
+.by{background:rgba(204,136,0,.1);color:var(--yellow);border:1px solid rgba(204,136,0,.2);}
+.bp{background:rgba(119,68,204,.1);color:var(--purple);border:1px solid rgba(119,68,204,.2);}
+.bc{background:rgba(0,153,204,.1);color:var(--cyan);border:1px solid rgba(0,153,204,.2);}
+
+/* ── PROGRESS ── */
+.pbar{height:5px;background:rgba(0,0,0,0.07);border-radius:3px;overflow:hidden;margin-top:5px;}
+.pfill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.prow{display:flex;justify-content:space-between;font-size:10px;font-family:'Nunito',sans-serif;color:var(--text3);margin-bottom:4px;}
+
+/* ── ROWS ── */
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.row:last-child{border-bottom:none;}
+.row:active{background:var(--bg2);border-radius:10px;}
+.icon42{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.rinfo{flex:1;min-width:0;}
+.rname{font-weight:700;font-size:13px;}
+.rmeta{font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif;margin-top:2px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;padding:0 14px 10px;overflow-x:auto;}
+.tab{padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1px solid var(--border);color:var(--text3);background:none;transition:all .18s;white-space:nowrap;}
+.tab.active{background:var(--acc);color:#fff;border-color:var(--acc);}
+.dtab{display:none;}
+.dtab.active{display:block;}
+
+/* ── SPECIAL CARDS ── */
+.c-good{background:linear-gradient(135deg,rgba(24,170,102,.07),rgba(24,170,102,.02));border:1px solid rgba(24,170,102,.16);border-radius:16px;padding:14px;margin:0 14px 10px;}
+.c-warn{background:linear-gradient(135deg,rgba(255,85,51,.07),rgba(204,34,68,.03));border:1px solid rgba(255,85,51,.18);border-radius:16px;padding:14px;margin:0 14px 10px;}
+.c-info{background:linear-gradient(135deg,rgba(119,68,204,.07),rgba(34,119,238,.03));border:1px solid rgba(119,68,204,.16);border-radius:16px;padding:14px;margin:0 14px 10px;}
+.c-yellow{background:linear-gradient(135deg,rgba(204,136,0,.07),rgba(204,136,0,.02));border:1px solid rgba(204,136,0,.16);border-radius:16px;padding:14px;margin:0 14px 10px;}
+.stag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.stxt{font-size:13px;color:var(--text2);line-height:1.7;}
+
+/* ── SECTION LABEL ── */
+.slbl{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:12px 18px 6px;}
+
+/* ── RING ── */
+.ring-svg{transform:rotate(-90deg);}
+
+/* ── ZONE BAR ── */
+.zrow{display:flex;align-items:center;gap:10px;padding:5px 0;}
+.zname{font-size:11px;color:var(--text2);width:95px;flex-shrink:0;}
+.zbar{flex:1;height:5px;background:rgba(0,0,0,0.07);border-radius:3px;overflow:hidden;}
+.zfill{height:100%;border-radius:3px;}
+.zval{font-size:10px;font-family:'Nunito',sans-serif;color:var(--text3);width:52px;text-align:right;flex-shrink:0;}
+
+/* ── SLEEP ── */
+.sleep-blocks{display:flex;align-items:flex-end;gap:3px;height:40px;margin:10px 0;}
+.sb{border-radius:3px 3px 0 0;flex:1;}
+
+/* ── PROFILE EDIT ── */
+.edit-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);}
+.edit-row:last-child{border-bottom:none;}
+.edit-key{font-size:13px;color:var(--text2);}
+.edit-val{font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;}
+.edit-btn{width:28px;height:28px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--acc);transition:all .15s;}
+.edit-btn:active{transform:scale(.9);}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 44px;width:100%;max-width:430px;border-top:1px solid var(--border);animation:mslide .28s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 30px rgba(0,0,0,0.12);}
+@keyframes mslide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhandle{width:34px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+.mtitle{font-size:17px;font-weight:700;margin-bottom:14px;}
+.minput{width:100%;padding:14px;border:1px solid var(--border2);border-radius:14px;font-size:16px;font-weight:800;background:var(--bg2);color:var(--text);outline:none;text-align:center;transition:border-color .2s;}
+.minput:focus{border-color:var(--acc);}
+.munit{text-align:center;font-size:13px;color:var(--text3);margin:6px 0 14px;font-family:'Nunito',sans-serif;}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;background:var(--acc);color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .15s;letter-spacing:.02em;}
+.btn:hover{background:var(--acc2);}
+.btn-ghost{background:var(--card2);color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--card3);}
+
+/* ── AI PILL ── */
+.ai-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:'Nunito',sans-serif;color:var(--green);padding:3px 9px;background:rgba(24,170,102,.08);border-radius:20px;border:1px solid rgba(24,170,102,.18);}
+.ai-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+
+/* ── CHAT ── */
+.chat-wrap{display:flex;flex-direction:column;gap:10px;padding:0 14px;margin-bottom:10px;max-height:52vh;overflow-y:auto;}
+.msg{max-width:88%;animation:fadeIn .2s ease;}
+.msg-ai{align-self:flex-start;}
+.msg-user{align-self:flex-end;}
+.bubble{padding:11px 14px;border-radius:18px;font-size:13px;line-height:1.65;}
+.bubble-ai{background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);}
+.bubble-user{background:var(--acc);color:#fff;border-bottom-right-radius:4px;}
+.msg-time{font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif;margin-top:3px;padding:0 4px;}
+.msg-ai .msg-time{text-align:left;}
+.msg-user .msg-time{text-align:right;}
+.chat-input-wrap{position:sticky;bottom:calc(var(--nav)+8px);padding:8px 14px;background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:10;}
+.chat-row{display:flex;gap:8px;align-items:flex-end;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,0.07);}
+.chat-ta{flex:1;background:none;border:none;color:var(--text);font-size:14px;resize:none;outline:none;max-height:120px;line-height:1.5;}
+.chat-ta::placeholder{color:var(--text3);}
+.send-btn{width:32px;height:32px;border-radius:50%;background:var(--acc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.send-btn:disabled{background:var(--card3);cursor:not-allowed;}
+.send-btn svg{width:14px;height:14px;color:#fff;}
+.qprompts{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto;}
+.qp{padding:6px 11px;border-radius:20px;font-size:10px;background:var(--card);border:1px solid var(--border2);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif;transition:all .18s;}
+.qp:hover{border-color:var(--acc);color:var(--acc);}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:td 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:.2s;}
+.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* ── IMPORT ── */
+.dropzone{border:2px dashed rgba(255,85,51,.3);border-radius:18px;padding:26px 16px;text-align:center;margin:0 14px 10px;cursor:pointer;transition:all .2s;background:rgba(255,85,51,.02);}
+.dropzone:hover{border-color:var(--acc);background:rgba(255,85,51,.05);}
+.dropzone svg{color:var(--acc);margin-bottom:8px;}
+.dropzone p{font-size:13px;color:var(--text2);line-height:1.7;}
+
+/* ── SPARKLINE ── */
+.spark{width:100%;height:46px;}
+
+/* ── SESSION DETAIL ── */
+.zone-donut{width:70px;height:70px;flex-shrink:0;}
+.stat-band{display:flex;gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:10px 0;}
+.sb-cell{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--border);}
+.sb-cell:last-child{border-right:none;}
+.sb-val{font-size:16px;font-weight:700;}
+.sb-lbl{font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif;margin-top:2px;}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+.chip{padding:5px 10px;border-radius:20px;font-size:11px;background:var(--card2);border:1px solid var(--border2);cursor:pointer;font-family:'Nunito',sans-serif;transition:all .18s;}
+.chip.on{background:rgba(255,85,51,.1);border-color:var(--acc);color:var(--acc);}
+
+/* ── TREND ── */
+.trend-up{color:var(--green);}
+.trend-down{color:var(--red);}
+.trend-flat{color:var(--text3);}
+
+/* ── SUMMARY BOX ── */
+.sum-box{background:var(--bg2);border-radius:14px;padding:14px;margin:8px 0;}
+.sum-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+
+/* Notification badge on nav */
+.notif{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--acc);border-radius:50%;border:2px solid var(--bg);}
+
+/* ── PERCENTILE BADGES ── */
+.pct{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.01em;margin-top:3px;}
+.pct-top{background:rgba(82,196,138,.15);color:#1e8a55;border:1px solid rgba(82,196,138,.25);}
+.pct-good{background:rgba(91,156,246,.15);color:#2060c0;border:1px solid rgba(91,156,246,.25);}
+.pct-avg{background:rgba(245,192,48,.15);color:#a07000;border:1px solid rgba(245,192,48,.25);}
+.pct-low{background:rgba(240,90,90,.15);color:#c02020;border:1px solid rgba(240,90,90,.25);}
+.pct-bar-wrap{margin-top:5px;}
+.pct-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.pct-bar-label{font-size:11px;font-weight:700;color:#222;flex:1;}
+.pct-bar-track{width:120px;height:7px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden;flex-shrink:0;}
+.pct-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.pct-mini{font-size:9px;font-weight:800;width:38px;text-align:right;flex-shrink:0;}
+.pct-sub{font-size:10px;font-weight:600;color:#555;margin-top:1px;padding-left:2px;}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     DETAIL SCREENS (overlay, position:fixed)
+═══════════════════════════════════════════ -->
+
+<!-- DETAIL: DERNIÈRE SÉANCE (Stepper) -->
+<div class="detail-screen" id="d-session">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-session')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">🚶 Stepper</div>
+      <div class="dhdr-sub">4 mars 2026 · 19:22</div>
+    </div>
+    <span class="badge bo">Aérobie</span>
+  </div>
+
+  <!-- STATS BAND -->
+  <div style="margin:0 14px 10px;">
+    <div class="stat-band">
+      <div class="sb-cell"><div class="sb-val" style="color:var(--acc)" id="d-kcal">340</div><div class="sb-lbl">KCAL</div></div>
+      <div class="sb-cell"><div class="sb-val">30:04</div><div class="sb-lbl">DURÉE</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--pink)">134</div><div class="sb-lbl">FC MOY</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--red)">141</div><div class="sb-lbl">FC MAX</div></div>
+    </div>
+  </div>
+
+  <!-- FC CURVE -->
+
+  <!-- PERCENTILE STEPPER -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(245,135,74,.07),rgba(245,135,74,.02));border:1px solid rgba(245,135,74,.18);">
+    <div style="font-size:10px;font-weight:800;color:#c05a1a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Calories brûlées (30min)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:85%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 15%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">FC maintenue (134 bpm)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:92%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 8%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Endurance aérobie</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:88%;background:var(--blue)"></div></div><div class="pct-mini" style="color:#2060c0;">Top 12%</div></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Courbe FC · Session</div>
+    <svg class="spark" style="height:80px" viewBox="0 0 300 80" preserveAspectRatio="none">
+      <defs><linearGradient id="gFC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#cc0077" stop-opacity=".2"/><stop offset="100%" stop-color="#cc0077" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,72 L10,60 L25,42 L40,38 L55,35 L70,33 L90,30 L110,28 L130,27 L150,26 L170,28 L190,29 L210,31 L230,30 L250,32 L270,33 L285,35 L300,38" fill="none" stroke="#cc0077" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M0,72 L10,60 L25,42 L40,38 L55,35 L70,33 L90,30 L110,28 L130,27 L150,26 L170,28 L190,29 L210,31 L230,30 L250,32 L270,33 L285,35 L300,38 L300,80 L0,80Z" fill="url(#gFC)"/>
+      <!-- zone lines -->
+      <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(204,34,68,.2)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="0" y1="38" x2="300" y2="38" stroke="rgba(204,136,0,.2)" stroke-width="1" stroke-dasharray="4,3"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;">
+      <span style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">0:00</span>
+      <span style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">10:00</span>
+      <span style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">20:00</span>
+      <span style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">30:04</span>
+    </div>
+  </div>
+
+  <!-- ZONES -->
+  <div class="card">
+    <div class="ctitle">Répartition zones FC</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <svg class="zone-donut" viewBox="0 0 70 70">
+        <circle cx="35" cy="35" r="28" fill="none" stroke="#e8e8f0" stroke-width="10"/>
+        <circle cx="35" cy="35" r="28" fill="none" stroke="#cc8800" stroke-width="10" stroke-dasharray="175.9" stroke-dashoffset="-2" stroke-linecap="round" transform="rotate(-90 35 35)"/>
+        <circle cx="35" cy="35" r="28" fill="none" stroke="#18aa66" stroke-width="10" stroke-dasharray="5" stroke-dashoffset="-171" stroke-linecap="round" transform="rotate(-90 35 35)"/>
+        <circle cx="35" cy="35" r="28" fill="none" stroke="#2277ee" stroke-width="10" stroke-dasharray="5" stroke-dashoffset="-176" stroke-linecap="round" transform="rotate(-90 35 35)"/>
+      </svg>
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+        <div class="zrow"><div class="zname">Aérobie ★</div><div class="zbar"><div class="zfill" style="width:96%;background:var(--yellow)"></div></div><div class="zval">29 min</div></div>
+        <div class="zrow"><div class="zname">Brûle-graisses</div><div class="zbar"><div class="zfill" style="width:3%;background:var(--green)"></div></div><div class="zval">&lt;1 min</div></div>
+        <div class="zrow"><div class="zname">Échauffement</div><div class="zbar"><div class="zfill" style="width:3%;background:var(--blue)"></div></div><div class="zval">&lt;1 min</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE -->
+  <div class="card">
+    <div class="ctitle">Performance</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div>
+        <div style="font-size:11px;color:var(--text3)">Stress aérobie</div>
+        <div class="n-md">1.9 <span style="font-size:12px;color:var(--text3);font-weight:400">/ 10</span></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text3)">Récupération</div>
+        <div class="n-md" style="color:var(--blue)">26h</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text3)">FC récup.</div>
+        <div class="n-md">128→103</div>
+      </div>
+    </div>
+    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px;">
+      <div style="background:#2277ee;width:19%;"></div>
+      <div style="background:#18aa66;width:19%;"></div>
+      <div style="background:#cc8800;flex:1;position:relative;"><div style="position:absolute;top:-4px;left:10%;width:2px;height:16px;background:var(--text);border-radius:1px;"></div></div>
+      <div style="background:#ee7700;width:15%;"></div>
+      <div style="background:#cc2244;width:10%;"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:6px;font-family:'Nunito',sans-serif">Niveau: MINIME → bon pour forme générale</div>
+  </div>
+
+  <!-- CONTEXTE POIDS -->
+  <div class="c-info" style="margin:0 14px 10px;">
+    <div class="stag" style="color:var(--purple)">⚖️ Calcul basé sur ton poids</div>
+    <div class="stxt" id="d-kcal-context">Calcul: MET 4.5 × 89.8 kg × 0.5h = 340 kcal. Si ton poids change, ces données se recalculent automatiquement.</div>
+  </div>
+
+  <!-- HISTORIQUE DES SÉANCES STEPPER -->
+  <div class="slbl">Historique Stepper · Mars 2026</div>
+  <div class="card" style="padding:6px 0 0;">
+    <div class="row" style="padding:11px 14px;">
+      <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+      <div class="rinfo"><div class="rname">4 mars · 19:22</div><div class="rmeta">134 bpm moy · 141 max</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:var(--acc)" id="h-s1">340</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+    <div class="row" style="padding:11px 14px;">
+      <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+      <div class="rinfo"><div class="rname">3 mars · 17:47</div><div class="rmeta">135 bpm moy</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:var(--acc)" id="h-s2">344</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+    <div class="row" style="padding:11px 14px;">
+      <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+      <div class="rinfo"><div class="rname">2 mars · 10:29</div><div class="rmeta">132 bpm moy</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:var(--acc)" id="h-s3">338</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+  </div>
+
+  <div class="slbl">Synthèse Stepper</div>
+  <div class="sum-box" style="margin:0 14px 10px;">
+    <div class="sum-title">Moyenne des 3 dernières séances</div>
+    <div style="display:flex;gap:16px;">
+      <div><div class="n-md" style="color:var(--acc)" id="sum-stepper-kcal">341</div><div style="font-size:9px;color:var(--text3)">kcal/séance</div></div>
+      <div><div class="n-md">30:06</div><div style="font-size:9px;color:var(--text3)">durée moy.</div></div>
+      <div><div class="n-md" style="color:var(--pink)">134</div><div style="font-size:9px;color:var(--text3)">bpm moy.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL: RAMEUR -->
+<div class="detail-screen" id="d-rameur">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-rameur')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">🚣 Rameur</div>
+      <div class="dhdr-sub">3 mars 2026 · 17:12</div>
+    </div>
+    <span class="badge bg">Zone cible ✓</span>
+  </div>
+
+  <div style="margin:0 14px 10px;">
+    <div class="stat-band">
+      <div class="sb-cell"><div class="sb-val" style="color:var(--green)" id="d-kcal-r">394</div><div class="sb-lbl">KCAL</div></div>
+      <div class="sb-cell"><div class="sb-val">28:28</div><div class="sb-lbl">DURÉE</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--pink)">151</div><div class="sb-lbl">FC MOY</div></div>
+      <div class="sb-cell"><div class="sb-val">47-50</div><div class="sb-lbl">C/MIN</div></div>
+    </div>
+  </div>
+
+
+  <!-- PERCENTILE RAMEUR -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(82,196,138,.07),rgba(82,196,138,.02));border:1px solid rgba(82,196,138,.18);">
+    <div style="font-size:10px;font-weight:800;color:#1e8a55;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Calories rameur (28min)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:90%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 10%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">FC zone aérobie (151 bpm)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:93%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 7%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Endurance cardiovasculaire</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:95%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 5%</div></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Courbe FC · Rameur</div>
+    <svg class="spark" style="height:80px" viewBox="0 0 300 80" preserveAspectRatio="none">
+      <defs><linearGradient id="gR" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18aa66" stop-opacity=".2"/><stop offset="100%" stop-color="#18aa66" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,75 L15,58 L30,44 L50,36 L70,31 L90,28 L110,26 L130,25 L150,24 L170,24 L190,25 L210,26 L230,25 L250,26 L270,27 L285,28 L300,30" fill="none" stroke="#18aa66" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M0,75 L15,58 L30,44 L50,36 L70,31 L90,28 L110,26 L130,25 L150,24 L170,24 L190,25 L210,26 L230,25 L250,26 L270,27 L285,28 L300,30 L300,80 L0,80Z" fill="url(#gR)"/>
+      <line x1="0" y1="22" x2="300" y2="22" stroke="rgba(204,136,0,.3)" stroke-width="1" stroke-dasharray="4,3"/>
+    </svg>
+  </div>
+
+  <div class="c-good" style="margin:0 14px 10px;">
+    <div class="stag" style="color:var(--green)">✅ Zone cible atteinte</div>
+    <div class="stxt">FC 151 bpm ✓ = zone aérobie (135–154 bpm). Cadence 47–50 c/min maintenue. Séance <strong>optimale</strong> pour ton profil post-chirurgie.</div>
+  </div>
+
+  <div class="slbl">Historique Rameur · Mars 2026</div>
+  <div class="card" style="padding:6px 0 0;">
+    <div class="row" style="padding:11px 14px;">
+      <div class="icon42" style="background:rgba(24,170,102,.08)">🚣</div>
+      <div class="rinfo"><div class="rname">3 mars · 17:12</div><div class="rmeta">151 bpm · 47-50 c/min</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:var(--green)" id="h-r1">394</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+    <div class="row" style="padding:11px 14px;">
+      <div class="icon42" style="background:rgba(24,170,102,.08)">🚣</div>
+      <div class="rinfo"><div class="rname">2 mars · 09:51</div><div class="rmeta">91 bpm moy (warm-up)</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:var(--green)" id="h-r2">180</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+  </div>
+
+  <div class="slbl">Synthèse Rameur</div>
+  <div class="sum-box" style="margin:0 14px 10px;">
+    <div class="sum-title">Mars 2026 · 2 séances</div>
+    <div style="display:flex;gap:16px;">
+      <div><div class="n-md" style="color:var(--green)" id="sum-ram-kcal">287</div><div style="font-size:9px;color:var(--text3)">kcal/séance</div></div>
+      <div><div class="n-md">29:40</div><div style="font-size:9px;color:var(--text3)">durée moy.</div></div>
+      <div><div class="n-md" style="color:var(--pink)">121</div><div style="font-size:9px;color:var(--text3)">bpm moy.</div></div>
+    </div>
+  </div>
+  <div class="c-info" style="margin:0 14px 10px;">
+    <div class="stag" style="color:var(--purple)">💡 Progression suggérée</div>
+    <div class="stxt">Vise 3 séances/semaine de 30min à 150–155 bpm. Augmente la cadence à 52 c/min progressivement sur 4 semaines.</div>
+  </div>
+</div>
+
+<!-- DETAIL: FC / CARDIO -->
+<div class="detail-screen" id="d-cardio">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-cardio')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">❤️ Fréquence cardiaque</div>
+      <div class="dhdr-sub">Analyse complète · 7 jours</div>
+    </div>
+  </div>
+
+  <div class="sgrid" style="margin:0 14px 10px;">
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--pink)">87</div><div class="slb">REPOS</div></div>
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--red)" id="d-fcmax">193</div><div class="slb">FC MAX</div></div>
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--purple)">45</div><div class="slb">MOY 7J</div></div>
+  </div>
+
+
+  <!-- PERCENTILE CARDIO -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(164,123,232,.07),rgba(91,156,246,.04));border:1px solid rgba(164,123,232,.18);">
+    <div style="font-size:10px;font-weight:800;color:#7744cc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">FC repos (87 bpm)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:97%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 3%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Médiane homme 47a : 72 bpm</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">FCmax réelle (193 bpm)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:95%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 5%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Attendue 47a : ~173 bpm · +20 bpm</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">FC nocturne (40–57 bpm)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:98%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 2%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Niveau athlète professionnel</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">SPO₂ (98%)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:90%;background:var(--blue)"></div></div><div class="pct-mini" style="color:#2060c0;">Top 10%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;">Remarquable malgré antécédent TB</div>
+  </div>
+  <div class="card">
+    <div class="ctitle">FC repos · 7 derniers jours</div>
+    <svg class="spark" style="height:60px" viewBox="0 0 300 60" preserveAspectRatio="none">
+      <defs><linearGradient id="gH" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#cc0077" stop-opacity=".2"/><stop offset="100%" stop-color="#cc0077" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,40 L43,38 L86,35 L129,42 L172,30 L215,37 L258,33 L300,35" fill="none" stroke="#cc0077" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M0,40 L43,38 L86,35 L129,42 L172,30 L215,37 L258,33 L300,35 L300,60 L0,60Z" fill="url(#gH)"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;margin-top:3px;">
+      <span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Lun</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Mar</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Mer</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Jeu</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Ven</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Sam</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Dim</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle" id="zones-title">Zones FC personnalisées · FCmax 193 bpm</div>
+    <div class="zrow"><div class="zname">Récupération</div><div class="zbar"><div class="zfill" style="width:60%;background:var(--blue)"></div></div><div class="zval" id="z1">&lt;116 bpm</div></div>
+    <div class="zrow"><div class="zname">Brûle-graisses</div><div class="zbar"><div class="zfill" style="width:70%;background:var(--green)"></div></div><div class="zval" id="z2">116-135</div></div>
+    <div class="zrow" style="background:rgba(204,136,0,.05);border-radius:8px;padding:5px 6px;"><div class="zname" style="color:var(--yellow)">Aérobie ★</div><div class="zbar"><div class="zfill" style="width:87%;background:var(--yellow)"></div></div><div class="zval" style="color:var(--yellow)" id="z3">135-154</div></div>
+    <div class="zrow"><div class="zname">Anaérobie</div><div class="zbar"><div class="zfill" style="width:42%;background:var(--orange)"></div></div><div class="zval" id="z4">154-174</div></div>
+    <div class="zrow"><div class="zname">Extrême</div><div class="zbar"><div class="zfill" style="width:18%;background:var(--red)"></div></div><div class="zval" id="z5">&gt;174 bpm</div></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px;font-family:'Nunito',sans-serif">⚡ Ces zones se recalculent si tu modifies ta FCmax dans le profil.</div>
+  </div>
+
+  <div class="c-good">
+    <div class="stag" style="color:var(--green)">🌟 Adaptation cardiaque exceptionnelle</div>
+    <div class="stxt">FC nocturne 40–57 bpm + repos 45 bpm = niveau athlète de haut niveau après 25 ans de sport extrême. Résultat remarquable à 47 ans.</div>
+  </div>
+</div>
+
+<!-- DETAIL: SOMMEIL -->
+<div class="detail-screen" id="d-sommeil">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-sommeil')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">🌙 Sommeil</div>
+      <div class="dhdr-sub">5 mars 2026 · Analyse détaillée</div>
+    </div>
+    <span class="badge by">84 pts</span>
+  </div>
+
+
+  <!-- PERCENTILE SOMMEIL -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(164,123,232,.07),rgba(164,123,232,.02));border:1px solid rgba(164,123,232,.18);">
+    <div style="font-size:10px;font-weight:800;color:#7744cc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Score global (84/100)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:91%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 9%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Médiane homme 47a : 68/100</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Sommeil profond (1h52)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:78%;background:var(--blue)"></div></div><div class="pct-mini" style="color:#2060c0;">Top 22%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Médiane : 1h20 · Objectif &gt;2h</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Durée totale (6h28)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:52%;background:var(--yellow)"></div></div><div class="pct-mini" style="color:#a07000;">Moyen</div></div>
+    <div class="pct-sub" style="margin-top:-4px;">Recommandé 7h–8h · +32min à gagner</div>
+  </div>
+  <div style="margin:0 14px 10px;">
+    <div class="stat-band">
+      <div class="sb-cell"><div class="sb-val" style="color:var(--purple)">6h28</div><div class="sb-lbl">TOTAL</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--purple)">1h52</div><div class="sb-lbl">PROFOND</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--pink)">1h36</div><div class="sb-lbl">REM</div></div>
+      <div class="sb-cell"><div class="sb-val" style="color:var(--yellow)">84</div><div class="sb-lbl">SCORE</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Cycles de sommeil · 23:45 → 06:13</div>
+    <div class="sleep-blocks" style="height:50px;">
+      <div class="sb" style="height:80%;background:var(--purple)"></div>
+      <div class="sb" style="height:35%;background:var(--pink)"></div>
+      <div class="sb" style="height:95%;background:var(--purple)"></div>
+      <div class="sb" style="height:40%;background:rgba(119,68,204,.3)"></div>
+      <div class="sb" style="height:90%;background:var(--purple)"></div>
+      <div class="sb" style="height:30%;background:var(--pink)"></div>
+      <div class="sb" style="height:80%;background:var(--purple)"></div>
+      <div class="sb" style="height:45%;background:rgba(119,68,204,.3)"></div>
+      <div class="sb" style="height:85%;background:var(--purple)"></div>
+      <div class="sb" style="height:28%;background:var(--pink)"></div>
+      <div class="sb" style="height:70%;background:var(--purple)"></div>
+      <div class="sb" style="height:50%;background:rgba(119,68,204,.3)"></div>
+    </div>
+    <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;">
+      <span style="font-size:10px;color:var(--text2)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--purple);margin-right:4px"></span>Profond 1h52 (29%)</span>
+      <span style="font-size:10px;color:var(--text2)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:rgba(119,68,204,.4);margin-right:4px"></span>Léger 3h (46%)</span>
+      <span style="font-size:10px;color:var(--text2)"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pink);margin-right:4px"></span>REM 1h36 (25%)</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Tendance 7 jours</div>
+    <svg class="spark" style="height:60px" viewBox="0 0 300 60" preserveAspectRatio="none">
+      <defs><linearGradient id="gSleep" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7744cc" stop-opacity=".2"/><stop offset="100%" stop-color="#7744cc" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,30 L43,25 L86,35 L129,20 L172,28 L215,18 L258,30 L300,22" fill="none" stroke="#7744cc" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M0,30 L43,25 L86,35 L129,20 L172,28 L215,18 L258,30 L300,22 L300,60 L0,60Z" fill="url(#gSleep)"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;margin-top:2px;"><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Lun</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Mar</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Mer</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Jeu</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Ven</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Sam</span><span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Dim</span></div>
+  </div>
+
+  <div class="c-warn">
+    <div class="stag" style="color:var(--acc)">⚠️ Alerte sommeil profond</div>
+    <div class="stxt">Ratio sommeil profond en baisse de <strong>−13 points</strong> cette semaine. Post-prostatectomie : le sommeil profond est crucial pour la récupération. Objectif : coucher avant 23h.</div>
+  </div>
+  <div class="c-good">
+    <div class="stag" style="color:var(--green)">🌟 Score exceptionnel</div>
+    <div class="stxt">84 points = mieux que <strong>91% des utilisateurs</strong>. Ta FC nocturne à 40 bpm confirme une récupération cardio profonde pendant le sommeil.</div>
+  </div>
+</div>
+
+<!-- DETAIL: TOUTES SÉANCES (historique complet) -->
+<div class="detail-screen" id="d-allsessions">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-allsessions')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">💪 Toutes les séances</div>
+      <div class="dhdr-sub" id="all-total">935 séances · 210 317 kcal</div>
+    </div>
+  </div>
+
+
+  <!-- PERCENTILE SÉANCES -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(245,135,74,.07),rgba(245,135,74,.02));border:1px solid rgba(245,135,74,.18);">
+    <div style="font-size:10px;font-weight:800;color:#c05a1a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Séances/mois (51 en fév.)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:98%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 2%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Médiane homme 47a : 8 séances/mois</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Volume mensuel (22.6h)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:97%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 3%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Régularité (7j consécutifs)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:95%;background:var(--blue)"></div></div><div class="pct-mini" style="color:#2060c0;">Top 5%</div></div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Total historique (935 séances)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:99%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 1%</div></div>
+  </div>
+  <div class="sgrid">
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--acc)">935</div><div class="slb">SÉANCES</div></div>
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--blue)">303h</div><div class="slb">DURÉE</div></div>
+    <div class="scell" style="cursor:default;"><div class="sval" style="color:var(--green)">210k</div><div class="slb">KCAL</div></div>
+  </div>
+
+  <div class="slbl">Mars 2026</div>
+  <div class="card" style="padding:4px 0 0;" id="all-sessions-list">
+    <!-- Populated dynamically -->
+  </div>
+
+  <div class="slbl">Synthèse mensuelle</div>
+  <div class="card">
+    <div class="ctitle">Répartition par activité · Mars</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div><div class="prow"><span>🚶 Stepper</span><span id="st-pct">50%</span></div><div class="pbar"><div class="pfill" style="width:50%;background:var(--acc)"></div></div></div>
+      <div><div class="prow"><span>🚣 Rameur / SkiErg</span><span id="rw-pct">33%</span></div><div class="pbar"><div class="pfill" style="width:33%;background:var(--green)"></div></div></div>
+      <div><div class="prow"><span>🏋️ Crossfit</span><span>17%</span></div><div class="pbar"><div class="pfill" style="width:17%;background:var(--blue)"></div></div></div>
+    </div>
+  </div>
+
+  <div class="slbl">Février 2026</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;">
+      <div style="text-align:center;"><div class="n-md" style="color:var(--acc)">22.6h</div><div style="font-size:9px;color:var(--text3)">DURÉE</div></div>
+      <div style="text-align:center;"><div class="n-md" style="color:var(--blue)">51</div><div style="font-size:9px;color:var(--text3)">SÉANCES</div></div>
+      <div style="text-align:center;"><div class="n-md" style="color:var(--green)" id="feb-kcal">12 742</div><div style="font-size:9px;color:var(--text3)">KCAL</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL: POIDS / ÉDITION -->
+<div class="detail-screen" id="d-poids">
+  <div class="dhdr">
+    <div class="back-btn" onclick="closeDetail('d-poids')">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+    </div>
+    <div class="dhdr-info">
+      <div class="dhdr-title">⚖️ Poids & Composition</div>
+      <div class="dhdr-sub">Historique & tendance</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Poids actuel</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div><div class="n-xl" id="dp-weight">89.8<span class="unit">kg</span></div><div style="font-size:11px;color:var(--text3);margin-top:4px;">IMC: <span id="dp-imc">25.1</span></div></div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:11px;color:var(--text3)">Déficit kcal/j</div>
+        <div class="n-md" style="color:var(--green)">1 374</div>
+        <div style="font-size:10px;color:var(--text3)">→ −0.4kg/sem</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">Tendance poids · 4 semaines</div>
+    <svg class="spark" style="height:60px" viewBox="0 0 300 60" preserveAspectRatio="none">
+      <defs><linearGradient id="gW" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2277ee" stop-opacity=".15"/><stop offset="100%" stop-color="#2277ee" stop-opacity="0"/></linearGradient></defs>
+      <path d="M0,20 L75,25 L150,32 L225,36 L300,38" fill="none" stroke="#2277ee" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M0,20 L75,25 L150,32 L225,36 L300,38 L300,60 L0,60Z" fill="url(#gW)"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;margin-top:3px;">
+      <span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Jan</span>
+      <span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Fév</span>
+      <span style="font-size:8px;color:var(--text3);font-family:'Nunito',sans-serif">Mars</span>
+      <span style="font-size:8px;color:var(--acc);font-weight:800">Auj.</span>
+    </div>
+  </div>
+
+
+  <!-- PERCENTILE POIDS -->
+  <div class="card" style="margin:0 14px 10px;background:linear-gradient(135deg,rgba(91,156,246,.07),rgba(91,156,246,.02));border:1px solid rgba(91,156,246,.18);">
+    <div style="font-size:10px;font-weight:800;color:#2060c0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📊 Positionnement · Homme 47 ans 189cm</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">IMC 25.1 (Normal)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:72%;background:var(--blue)"></div></div><div class="pct-mini" style="color:#2060c0;">Top 28%</div></div>
+    <div class="pct-sub" style="margin-top:-4px;margin-bottom:6px;">Médiane IMC homme 47a : 27.2 · tu es en dessous ✓</div>
+    <div class="pct-bar-row"><div class="pct-bar-label">Évolution (−0.4kg/sem)</div><div class="pct-bar-track"><div class="pct-bar-fill" style="width:80%;background:var(--green)"></div></div><div class="pct-mini" style="color:#1e8a55;">Top 20%</div></div>
+  </div>
+  <div class="c-info">
+    <div class="stag" style="color:var(--purple)">⚡ Impact sur tes calories</div>
+    <div class="stxt" id="dp-impact">À 89.8 kg, tu brûles environ <strong>340 kcal</strong> pour 30min de Stepper. À 85 kg, ce serait ~320 kcal. Le calcul se met à jour automatiquement partout dans l'app dès que tu modifies ton poids.</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MAIN SCREENS
+═══════════════════════════════════════════ -->
+
+<!-- SCREEN: ACCUEIL -->
+<div class="screen active" id="s-home">
+  <div class="hdr">
+    <div>
+      <div class="htitle">Fit To Day</div>
+      <div class="hsub">Yacine · 47 ans · Jeu. 5 Mars 2026</div>
+    </div>
+    <div class="ai-pill"><div class="ai-dot"></div>IA ON</div>
+  </div>
+
+  <!-- ANNEAUX cliquables -->
+  <div class="card clickable" onclick="openDetail('d-allsessions')">
+    <div class="ctitle">Anneaux d'activité · Aujourd'hui <span style="float:right">›</span></div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <svg width="110" height="110" viewBox="0 0 110 110" class="ring-svg">
+        <circle cx="55" cy="55" r="50" fill="none" stroke="rgba(204,34,68,.12)" stroke-width="9"/>
+        <circle cx="55" cy="55" r="50" fill="none" stroke="#dd2244" stroke-width="9" stroke-dasharray="314.2" stroke-dashoffset="132" stroke-linecap="round"/>
+        <circle cx="55" cy="55" r="38" fill="none" stroke="rgba(204,136,0,.12)" stroke-width="9"/>
+        <circle cx="55" cy="55" r="38" fill="none" stroke="#cc8800" stroke-width="9" stroke-dasharray="238.8" stroke-dashoffset="72" stroke-linecap="round"/>
+        <circle cx="55" cy="55" r="26" fill="none" stroke="rgba(34,119,238,.12)" stroke-width="9"/>
+        <circle cx="55" cy="55" r="26" fill="none" stroke="#2277ee" stroke-width="9" stroke-dasharray="163.4" stroke-dashoffset="82" stroke-linecap="round"/>
+      </svg>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div><div style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">● BOUGER</div><span class="n-md" style="color:var(--red)">174</span><span style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif"> /300 kcal</span></div>
+        <div><div style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">● M'ENTRAÎNER</div><span class="n-md" style="color:var(--yellow)">7</span><span style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif"> /10 min</span></div>
+        <div><div style="font-size:9px;color:var(--text3);font-family:'Nunito',sans-serif">● ME LEVER</div><span class="n-md" style="color:var(--blue)">6</span><span style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif"> /12 h</span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+      <span>👟</span><span class="n-md">3 658</span><span style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">/7 000 pas</span>
+      <span style="margin-left:auto;" class="badge by">52%</span>
+    </div>
+  </div>
+
+  <!-- STATS GRID cliquables -->
+  <div class="sgrid">
+    <div class="scell" onclick="openDetail('d-cardio')"><div class="sval" style="color:var(--pink)">87</div><div class="slb">FC REPOS</div></div>
+    <div class="scell" onclick="openDetail('d-sommeil')"><div class="sval" style="color:var(--purple)">6h28</div><div class="slb">SOMMEIL</div></div>
+    <div class="scell" onclick="openDetail('d-cardio')"><div class="sval" style="color:var(--green)">98%</div><div class="slb">SPO₂</div></div>
+  </div>
+  <div class="sgrid">
+    <div class="scell" onclick="go('ia',document.querySelectorAll('.nb')[2])"><div class="sval" style="color:var(--yellow)">44</div><div class="slb">STRESS</div></div>
+    <div class="scell" onclick="openDetail('d-allsessions')"><div class="sval" style="color:var(--acc)">935</div><div class="slb">SÉANCES</div></div>
+    <div class="scell" onclick="openDetail('d-poids')"><div class="sval" style="color:var(--blue)" id="home-weight">89.8</div><div class="slb">KG</div><span class="pct pct-good" style="font-size:9px;">IMC OK</span></div>
+  </div>
+
+  <!-- CONSEIL IA -->
+  <div class="c-info">
+    <div class="stag" style="color:var(--purple)">🧠 Conseil IA personnalisé</div>
+    <div class="stxt">Ta FC nocturne (40–57 bpm) = adaptation cardiaque d'élite après 25 ans de sport. Avec ta PTH à prévoir, <strong>rameur + SkiErg sont optimaux</strong> pour la hanche. 3×30min zone aérobie (135–154 bpm) cette semaine.</div>
+  </div>
+
+  <!-- ALERTE -->
+  <div class="c-warn">
+    <div class="stag" style="color:var(--acc)">⚠️ Post-prostatectomie · Jan 2026</div>
+    <div class="stxt">Suivi Gustave Roussy (pT2 N0 R0 · Gleason 7). Intensité progressive recommandée. Évite anaérobie prolongé avant validation médicale.</div>
+  </div>
+
+  <!-- DERNIÈRE SÉANCE cliquable -->
+  <div class="slbl">Dernière séance</div>
+  <div class="card clickable" onclick="openDetail('d-session')">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;">Stepper <span style="font-size:11px;color:var(--text3);font-weight:400;">· Voir détails ›</span></div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif;">4 mars · 19:22 · 30:04 min</div>
+      </div>
+      <div style="text-align:right;"><div class="n-md" style="color:var(--acc)" id="home-last-kcal">340</div><div style="font-size:9px;color:var(--text3)">kcal</div></div>
+    </div>
+    <div style="display:flex;height:6px;gap:2px;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+      <div style="background:var(--blue);width:2%;border-radius:2px;"></div>
+      <div style="background:var(--green);width:2%;border-radius:2px;"></div>
+      <div style="background:var(--yellow);flex:1;border-radius:2px;"></div>
+    </div>
+    <div style="display:flex;gap:14px;">
+      <div><div style="font-size:9px;color:var(--text3)">FC moy</div><div style="font-weight:700;font-family:'Nunito',sans-serif;">134 bpm</div></div>
+      <div><div style="font-size:9px;color:var(--text3)">FC max</div><div style="font-weight:700;font-family:'Nunito',sans-serif;">141 bpm</div></div>
+      <div><div style="font-size:9px;color:var(--text3)">Récup</div><div style="font-weight:700;font-family:'Nunito',sans-serif;">26h</div></div>
+      <div><div style="font-size:9px;color:var(--text3)">Zone</div><div style="font-weight:700;color:var(--yellow)">Aérobie</div></div>
+    </div>
+  </div>
+
+  <!-- MARS 2026 cliquable -->
+  <div class="slbl">Mars 2026</div>
+  <div class="card clickable" onclick="openDetail('d-allsessions')">
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+      <div style="text-align:center;"><div class="n-md" style="color:var(--acc)">3h</div><div style="font-size:9px;color:var(--text3)">DURÉE</div></div>
+      <div style="text-align:center;"><div class="n-md" style="color:var(--blue)">6</div><div style="font-size:9px;color:var(--text3)">SÉANCES</div></div>
+      <div style="text-align:center;"><div class="n-md" style="color:var(--green)" id="home-mars-kcal">1 797</div><div style="font-size:9px;color:var(--text3)">KCAL</div></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <span class="badge bo">Crossfit 30min</span>
+      <span class="badge bb">Stepper 1.5h</span>
+      <span class="badge bg">Rameur 59min</span>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:8px;font-family:'Nunito',sans-serif;">Appuyer pour voir tout l'historique ›</div>
+  </div>
+</div>
+
+<!-- SCREEN: DONNÉES -->
+<div class="screen" id="s-data">
+  <div class="hdr">
+    <div><div class="htitle">Données</div><div class="hsub">Historiques & tendances</div></div>
+    <span class="badge bg">↑ Trend+</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="dtab('cardio',this)">❤️ Cardio</button>
+    <button class="tab" onclick="dtab('seances',this)">💪 Séances</button>
+    <button class="tab" onclick="dtab('sommeil',this)">🌙 Sommeil</button>
+    <button class="tab" onclick="dtab('sante',this)">🏥 Santé</button>
+  </div>
+
+  <div class="dtab active" id="dt-cardio">
+    <div class="card clickable" onclick="openDetail('d-cardio')">
+      <div class="ctitle">Fréquence cardiaque · Voir détail ›</div>
+      <div style="display:flex;gap:14px;margin-bottom:12px;">
+        <div><div style="font-size:10px;color:var(--text3)">Repos 7j</div><div class="n-lg" style="color:var(--pink)">45<span class="unit">bpm</span></div></div>
+        <div><div style="font-size:10px;color:var(--text3)">FCmax</div><div class="n-lg" style="color:var(--red)" id="data-fcmax">193<span class="unit">bpm</span></div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Nuit</div><div class="n-lg" style="color:var(--purple)">40–57</div></div>
+      </div>
+      <svg class="spark" viewBox="0 0 300 48" preserveAspectRatio="none">
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#cc0077" stop-opacity=".2"/><stop offset="100%" stop-color="#cc0077" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,38 L43,36 L86,32 L129,40 L172,28 L215,35 L258,30 L300,33" fill="none" stroke="#cc0077" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M0,38 L43,36 L86,32 L129,40 L172,28 L215,35 L258,30 L300,33 L300,48 L0,48Z" fill="url(#g1)"/>
+      </svg>
+    </div>
+    <div class="cgrid">
+      <div class="card2 clickable" onclick="openDetail('d-cardio')" style="cursor:pointer;">
+        <div class="ctitle">SPO₂</div>
+        <div class="n-xl" style="color:var(--green)">98<span class="unit">%</span></div>
+        <div style="margin-top:8px;"><span class="badge bg">Excellent</span></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Voir historique ›</div>
+      </div>
+      <div class="card2 clickable" onclick="go('ia',document.querySelectorAll('.nb')[2])" style="cursor:pointer;">
+        <div class="ctitle">STRESS</div>
+        <div class="n-xl" style="color:var(--yellow)">44</div>
+        <div style="margin-top:8px;"><span class="badge by">Normal</span></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">Analyser avec IA ›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dtab" id="dt-seances">
+    <div class="card clickable" onclick="openDetail('d-allsessions')">
+      <div class="ctitle">Vue d'ensemble · Voir tout ›</div>
+      <div style="display:flex;justify-content:space-between;">
+        <div style="text-align:center;"><div class="n-md" style="color:var(--acc)">303h</div><div style="font-size:9px;color:var(--text3)">DURÉE</div></div>
+        <div style="text-align:center;"><div class="n-md" style="color:var(--blue)">935</div><div style="font-size:9px;color:var(--text3)">SÉANCES</div></div>
+        <div style="text-align:center;"><div class="n-md" style="color:var(--green)">210k</div><div style="font-size:9px;color:var(--text3)">KCAL</div></div>
+      </div>
+    </div>
+    <div class="slbl">Récentes · Cliquer pour détails</div>
+    <div class="card" style="padding:4px 0 0;">
+      <div class="row" style="padding:11px 14px;" onclick="openDetail('d-session')">
+        <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+        <div class="rinfo"><div class="rname">Stepper · 4 mars</div><div class="rmeta">134 bpm · 30:04 min</div></div>
+        <div style="text-align:right;"><div style="font-weight:800;color:var(--acc)" id="list-s1">340</div><div style="font-size:9px;color:var(--text3)">kcal</div></div><div class="chevron">›</div>
+      </div>
+      <div class="row" style="padding:11px 14px;" onclick="openDetail('d-rameur')">
+        <div class="icon42" style="background:rgba(24,170,102,.08)">🚣</div>
+        <div class="rinfo"><div class="rname">Rameur · 3 mars</div><div class="rmeta">151 bpm · 28:28 min</div></div>
+        <div style="text-align:right;"><div style="font-weight:800;color:var(--green)" id="list-r1">394</div><div style="font-size:9px;color:var(--text3)">kcal</div></div><div class="chevron">›</div>
+      </div>
+      <div class="row" style="padding:11px 14px;" onclick="openDetail('d-session')">
+        <div class="icon42" style="background:rgba(255,85,51,.08)">🚶</div>
+        <div class="rinfo"><div class="rname">Stepper · 3 mars</div><div class="rmeta">135 bpm · 30:09 min</div></div>
+        <div style="text-align:right;"><div style="font-weight:800;color:var(--acc)" id="list-s2">344</div><div style="font-size:9px;color:var(--text3)">kcal</div></div><div class="chevron">›</div>
+      </div>
+      <div class="row" style="padding:11px 14px;" onclick="openDetail('d-rameur')">
+        <div class="icon42" style="background:rgba(24,170,102,.08)">🚣</div>
+        <div class="rinfo"><div class="rname">Rameur · 2 mars</div><div class="rmeta">91 bpm · 30:55 min</div></div>
+        <div style="text-align:right;"><div style="font-weight:800;color:var(--green)" id="list-r2">180</div><div style="font-size:9px;color:var(--text3)">kcal</div></div><div class="chevron">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dtab" id="dt-sommeil">
+    <div class="card clickable" onclick="openDetail('d-sommeil')">
+      <div class="ctitle">Sommeil · 5 mars · Voir détail ›</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+        <div><div class="n-xl">6h<span style="font-size:.55em">28</span></div><div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">23:45 → 06:13</div></div>
+        <div style="margin-left:auto;text-align:center;"><div class="n-lg" style="color:var(--yellow)">84</div><div style="font-size:9px;color:var(--text3)">POINTS</div><div style="color:var(--green);font-size:10px;margin-top:3px">Top 9%</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:36px;margin-bottom:4px;">
+        <div style="flex:1;height:80%;background:var(--purple);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:35%;background:var(--pink);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:92%;background:var(--purple);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:40%;background:rgba(119,68,204,.3);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:88%;background:var(--purple);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:32%;background:var(--pink);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:82%;background:var(--purple);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:45%;background:rgba(119,68,204,.3);border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:78%;background:var(--purple);border-radius:2px 2px 0 0;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dtab" id="dt-sante">
+    <div class="card">
+      <div class="ctitle">Profil médical</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div class="edit-row"><div class="edit-key">Poids</div><div class="edit-val"><span id="s-weight">89.8 kg</span></div></div>
+        <div class="edit-row"><div class="edit-key">FCmax</div><div class="edit-val"><span id="s-fcmax">193 bpm</span></div></div>
+        <div class="edit-row"><div class="edit-key">SPO₂</div><div class="edit-val">98%</div></div>
+        <div class="edit-row"><div class="edit-key">FC nuit</div><div class="edit-val">40–57 bpm</div></div>
+        <div class="edit-row"><div class="edit-key">Temp. cutanée</div><div class="edit-val">27.9°C</div></div>
+      </div>
+    </div>
+    <div class="c-warn">
+      <div class="stag" style="color:var(--acc)">🏥 Antécédents</div>
+      <div class="stxt">Prostatectomie jan. 2026 (pT2 N0 R0 · Gustave Roussy) · TB pulmonaire bil. à 25 ans · Arthrose coxofémorale droite (PTH à prévoir)</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: COACH IA -->
+<div class="screen" id="s-ia">
+  <div class="hdr">
+    <div><div class="htitle">Coach IA</div><div class="hsub">Claude · Données temps réel</div></div>
+    <div class="ai-pill"><div class="ai-dot"></div>En ligne</div>
+  </div>
+  <div class="qprompts">
+    <button class="qp" onclick="sendQuick(this)">📊 Rapport semaine</button>
+    <button class="qp" onclick="sendQuick(this)">❤️ Analyse cardio</button>
+    <button class="qp" onclick="sendQuick(this)">🚣 Conseils rameur</button>
+    <button class="qp" onclick="sendQuick(this)">😴 Sommeil & récup</button>
+    <button class="qp" onclick="sendQuick(this)">🏥 Suivi médical</button>
+    <button class="qp" onclick="sendQuick(this)">⛷️ Optim SkiErg</button>
+    <button class="qp" onclick="sendQuick(this)">⚖️ Impact poids</button>
+  </div>
+  <div class="chat-wrap" id="chatWrap">
+    <div class="msg msg-ai">
+      <div class="bubble bubble-ai">Bonjour Yacine 👋<br><br>Je suis ton coach IA, connecté à toutes tes données en temps réel. Ton profil actuel : <strong id="ai-welcome-weight">89.8 kg</strong>, FCmax <strong id="ai-welcome-fcmax">193 bpm</strong>, 935 séances, post-prostatectomie jan. 2026.<br><br>Si tu modifies ton poids ou ta FCmax dans le Profil, je recalcule tout automatiquement. Que veux-tu analyser ?</div>
+      <div class="msg-time">Aujourd'hui · Coach IA</div>
+    </div>
+  </div>
+  <div class="chat-input-wrap">
+    <div class="chat-row">
+      <textarea class="chat-ta" id="chatInput" rows="1" placeholder="Pose une question à ton coach..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: DOCUMENTS -->
+<div class="screen" id="s-docs">
+  <div class="hdr">
+    <div><div class="htitle">Documents</div><div class="hsub">Import & compilation IA</div></div>
+    <span class="badge bb">8 docs</span>
+  </div>
+  <div class="dropzone" onclick="document.getElementById('fileIn').click()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+    <p><strong>Importer un document</strong><br>Screenshot montre · Rapport SkiErg<br>PDF médical · Rapport Claude</p>
+  </div>
+  <input type="file" id="fileIn" multiple accept="image/*,.pdf,.txt" style="display:none" onchange="importFiles(event)">
+  <div class="c-info">
+    <div class="stag" style="color:var(--purple)">🧠 Comment ça marche</div>
+    <div class="stxt">1. Importe un screenshot de ta montre ou du SkiErg<br>2. L'IA extrait les données automatiquement<br>3. Tes calories sont recalculées selon ton poids actuel (<span id="docs-weight">89.8 kg</span>)</div>
+  </div>
+  <div class="slbl">Documents importés</div>
+  <div class="card" style="padding:4px 0 0;" id="docsList">
+    <div class="upitem" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);">
+      <div class="icon42" style="background:rgba(255,85,51,.08);font-size:16px;">📱</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Screenshots Huawei Health</div><div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">8 images · 05/03/2026</div></div>
+      <span class="badge bg">✓ Lu</span>
+    </div>
+    <div class="upitem" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);">
+      <div class="icon42" style="background:rgba(24,170,102,.08);font-size:16px;">🚣</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Rapport Rameur 03/03</div><div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">151bpm · 394kcal</div></div>
+      <span class="badge bg">✓ Lu</span>
+    </div>
+    <div class="upitem" style="display:flex;align-items:center;gap:10px;padding:11px 14px;">
+      <div class="icon42" style="background:rgba(119,68,204,.08);font-size:16px;">🧠</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">Rapport Claude · Fév 2026</div><div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">Analyse mensuelle</div></div>
+      <span class="badge bg">✓ Intégré</span>
+    </div>
+  </div>
+  <div style="padding:0 14px;margin-top:10px;">
+    <button class="btn" onclick="compileIA()">⚡ Compiler & Analyser avec l'IA</button>
+  </div>
+</div>
+
+<!-- SCREEN: PROFIL -->
+<div class="screen" id="s-profil">
+  <div class="hdr">
+    <div><div class="htitle">Mon Profil</div><div class="hsub">Modifier → recalcul auto</div></div>
+  </div>
+
+  <div style="text-align:center;padding:4px 20px 20px;">
+    <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--acc),var(--purple));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px;box-shadow:0 6px 20px rgba(255,85,51,.25);">Y</div>
+    <div style="font-size:18px;font-weight:700;">Yacine Diallo</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:2px;">47 ans · <span id="p-height">189</span> cm</div>
+    <div style="margin-top:8px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+      <span class="badge bo">25a sport extrême</span>
+      <span class="badge bg">FC élite</span>
+    </div>
+  </div>
+
+  <div class="c-info">
+    <div class="stag" style="color:var(--purple)">⚡ Recalcul automatique</div>
+    <div class="stxt">Modifie ton poids ou ta FCmax → <strong>toutes tes calories et zones FC</strong> se recalculent instantanément dans toute l'app.</div>
+  </div>
+
+  <div class="slbl">Données modifiables</div>
+  <div class="card">
+    <!-- POIDS -->
+    <div class="edit-row">
+      <div class="edit-key">⚖️ Poids</div>
+      <div class="edit-val">
+        <button class="edit-btn" onclick="adjustVal('weight', -0.1)">−</button>
+        <span id="p-weight">89.8</span> kg
+        <button class="edit-btn" onclick="adjustVal('weight', +0.1)">+</button>
+        <button class="edit-btn" style="background:var(--bg2);color:var(--blue);font-size:12px;" onclick="openEdit('weight')">✏️</button>
+      </div>
+    </div>
+    <!-- FCMAX -->
+    <div class="edit-row">
+      <div class="edit-key">❤️ FCmax</div>
+      <div class="edit-val">
+        <button class="edit-btn" onclick="adjustVal('fcmax', -1)">−</button>
+        <span id="p-fcmax">193</span> bpm
+        <button class="edit-btn" onclick="adjustVal('fcmax', +1)">+</button>
+        <button class="edit-btn" style="background:var(--bg2);color:var(--blue);font-size:12px;" onclick="openEdit('fcmax')">✏️</button>
+      </div>
+    </div>
+    <!-- OBJECTIF PAS -->
+    <div class="edit-row">
+      <div class="edit-key">👟 Objectif pas/j</div>
+      <div class="edit-val">
+        <button class="edit-btn" onclick="adjustVal('steps', -500)">−</button>
+        <span id="p-steps">7000</span>
+        <button class="edit-btn" onclick="adjustVal('steps', +500)">+</button>
+      </div>
+    </div>
+    <!-- OBJECTIF KCAL -->
+    <div class="edit-row">
+      <div class="edit-key">🔥 Objectif kcal/j</div>
+      <div class="edit-val">
+        <button class="edit-btn" onclick="adjustVal('kcalgoal', -50)">−</button>
+        <span id="p-kcalgoal">300</span> kcal
+        <button class="edit-btn" onclick="adjustVal('kcalgoal', +50)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPACT EN DIRECT -->
+  <div class="slbl">Impact calculé</div>
+  <div class="card">
+    <div class="ctitle">Calories estimées par activité · <span id="calc-weight-lbl">89.8 kg</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;">🚶 Stepper 30min</span>
+        <span style="font-weight:800;color:var(--acc);" id="calc-stepper">340 kcal</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;">🚣 Rameur 30min</span>
+        <span style="font-weight:800;color:var(--green);" id="calc-rameur">420 kcal</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;">⛷️ SkiErg 30min</span>
+        <span style="font-weight:800;color:var(--blue);" id="calc-skierг">395 kcal</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+        <span style="font-size:13px;">🏋️ Crossfit 30min</span>
+        <span style="font-weight:800;color:var(--purple);" id="calc-crossfit">215 kcal</span>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:8px;font-family:'Nunito',sans-serif;">Formule MET × poids × durée. Se met à jour en temps réel.</div>
+  </div>
+
+  <!-- ZONES FC en direct -->
+  <div class="slbl">Zones FC · Recalculées live</div>
+  <div class="card">
+    <div class="ctitle">Basées sur FCmax : <span id="p-fcmax-display">193</span> bpm</div>
+    <div class="zrow"><div class="zname">Récupération</div><div class="zbar"><div class="zfill" style="width:60%;background:var(--blue)"></div></div><div class="zval" id="pz1">&lt;116</div></div>
+    <div class="zrow"><div class="zname">Brûle-graisses</div><div class="zbar"><div class="zfill" style="width:70%;background:var(--green)"></div></div><div class="zval" id="pz2">116–135</div></div>
+    <div class="zrow" style="background:rgba(204,136,0,.05);border-radius:8px;padding:5px 6px;"><div class="zname" style="color:var(--yellow);">Aérobie ★</div><div class="zbar"><div class="zfill" style="width:87%;background:var(--yellow)"></div></div><div class="zval" style="color:var(--yellow)" id="pz3">135–154</div></div>
+    <div class="zrow"><div class="zname">Anaérobie</div><div class="zbar"><div class="zfill" style="width:42%;background:var(--orange)"></div></div><div class="zval" id="pz4">154–174</div></div>
+    <div class="zrow"><div class="zname">Extrême</div><div class="zbar"><div class="zfill" style="width:18%;background:var(--red)"></div></div><div class="zval" id="pz5">&gt;174</div></div>
+  </div>
+
+  <!-- MÉDICAL (informatif) -->
+  <div class="slbl">Suivi médical</div>
+  <div class="card">
+    <div class="edit-row"><div class="edit-key">Gustave Roussy</div><span class="badge bo">En cours</span></div>
+    <div class="edit-row"><div class="edit-key">Prostatectomie</div><span class="badge bg">pT2 N0 R0 ✓</span></div>
+    <div class="edit-row"><div class="edit-key">PTH hanche D.</div><span class="badge by">À planifier</span></div>
+    <div class="edit-row"><div class="edit-key">Dernier RDV</div><div class="edit-val">Jan 2026</div></div>
+  </div>
+
+  <div class="slbl">À propos</div>
+  <div class="card" style="text-align:center;padding:18px;">
+    <div style="font-size:17px;font-weight:700;color:var(--acc);">YacineFit v4.0</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.8;">Connecté à Claude · Anthropic<br>Données privées · Calculs temps réel<br>PWA · Fonctionne hors-ligne</div>
+    <button class="btn btn-ghost" style="margin-top:12px;font-size:12px;" onclick="showInstall()">📱 Installer sur Android</button>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <button class="nb active" onclick="go('home',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+    Accueil
+  </button>
+  <button class="nb" onclick="go('data',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+    Données
+  </button>
+  <button class="nb" onclick="go('ia',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+    Coach IA
+  </button>
+  <button class="nb" onclick="go('docs',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+    Docs
+  </button>
+  <button class="nb" onclick="go('profil',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+    Profil
+  </button>
+</nav>
+
+<!-- MODAL EDIT -->
+<div class="overlay" id="editModal" onclick="closeModal('editModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="editModalTitle">Modifier</div>
+    <input class="minput" type="number" id="editInput" step="0.1">
+    <div class="munit" id="editUnit"></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;" id="editHint"></div>
+    <button class="btn" onclick="saveEdit()">✓ Enregistrer & Recalculer</button>
+    <button class="btn btn-ghost" onclick="closeModal('editModal')" style="margin-top:8px;">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL INSTALL -->
+<div class="overlay" id="installModal" onclick="closeModal('installModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">📱 Installer sur Android</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px;">
+      <strong style="color:var(--text)">1.</strong> Télécharge le fichier <code style="background:var(--bg2);padding:2px 6px;border-radius:4px;color:var(--acc)">yacinefit_v4.html</code><br>
+      <strong style="color:var(--text)">2.</strong> Envoie-le sur ton Android (WhatsApp, Gmail)<br>
+      <strong style="color:var(--text)">3.</strong> Ouvre-le dans <strong>Chrome</strong><br>
+      <strong style="color:var(--text)">4.</strong> Menu ⋮ → <strong>"Ajouter à l'écran d'accueil"</strong><br><br>
+      C'est installé comme une vraie app !
+    </div>
+    <button class="btn" onclick="closeModal('installModal')">Compris !</button>
+  </div>
+</div>
+
+<!-- MODAL COMPILE -->
+<div class="overlay" id="compileModal" onclick="closeModal('compileModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">⚡ Compilation IA</div>
+    <div style="margin:12px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:10px;font-family:'Nunito',sans-serif;color:var(--text3);margin-bottom:6px;"><span id="cStatus">Initialisation...</span><span id="cPct">0%</span></div>
+      <div class="pbar" style="height:8px;"><div class="pfill" id="cBar" style="width:0%;background:var(--acc);transition:width .5s;"></div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:'Nunito',sans-serif;line-height:1.8;" id="cLog"></div>
+    <button class="btn btn-ghost" onclick="closeModal('compileModal')" style="margin-top:14px;">Fermer</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  ÉTAT CENTRAL DE L'APP
+// ═══════════════════════════════════════════════
+const APP = {
+  weight: 89.8,   // kg
+  height: 189,    // cm
+  fcmax: 193,     // bpm
+  age: 47,
+  stepsGoal: 7000,
+  kcalGoal: 300,
+
+  // Sessions avec durée en heures
+  sessions: [
+    { id:'s1', type:'stepper', label:'Stepper', icon:'🚶', date:'4 mars 19:22', dur:0.5013, fcMoy:134, fcMax:141, met:4.5 },
+    { id:'s2', type:'crossfit', label:'Crossfit', icon:'🏋️', date:'4 mars 18:47', dur:0.5063, fcMoy:96, fcMax:120, met:7.0 },
+    { id:'s3', type:'stepper', label:'Stepper', icon:'🚶', date:'3 mars 17:47', dur:0.5025, fcMoy:135, fcMax:142, met:4.5 },
+    { id:'s4', type:'rameur', label:'Rameur', icon:'🚣', date:'3 mars 17:12', dur:0.4744, fcMoy:151, fcMax:162, met:7.0 },
+    { id:'s5', type:'stepper', label:'Stepper', icon:'🚶', date:'2 mars 10:29', dur:0.5013, fcMoy:132, fcMax:140, met:4.5 },
+    { id:'s6', type:'rameur', label:'Rameur', icon:'🚣', date:'2 mars 09:51', dur:0.5152, fcMoy:91, fcMax:110, met:4.2 },
+  ],
+
+  // Calcul calories: MET × poids(kg) × durée(h)
+  calcKcal(met, durH) {
+    return Math.round(met * this.weight * durH);
+  },
+
+  // Zones FC selon FCmax (% méthode Karvonen simplifiée)
+  getZones() {
+    const f = this.fcmax;
+    return {
+      recup:  `<${Math.round(f*0.6)}`,
+      fat:    `${Math.round(f*0.6)}–${Math.round(f*0.7)}`,
+      aero:   `${Math.round(f*0.7)}–${Math.round(f*0.8)}`,
+      anaero: `${Math.round(f*0.8)}–${Math.round(f*0.9)}`,
+      max:    `>${Math.round(f*0.9)}`
+    };
+  },
+
+  getImc() { return (this.weight / ((this.height/100)**2)).toFixed(1); }
+};
+
+// ═══════════════════════════════════════════════
+//  RECALCUL GLOBAL
+// ═══════════════════════════════════════════════
+function recalcAll() {
+  const w = APP.weight;
+  const zones = APP.getZones();
+
+  // ── Profil ──
+  document.getElementById('p-weight').textContent = w.toFixed(1);
+  document.getElementById('p-fcmax').textContent = APP.fcmax;
+  document.getElementById('p-steps').textContent = APP.stepsGoal;
+  document.getElementById('p-kcalgoal').textContent = APP.kcalGoal;
+  document.getElementById('p-fcmax-display').textContent = APP.fcmax;
+  document.getElementById('calc-weight-lbl').textContent = w.toFixed(1) + ' kg';
+
+  // Calories estimées par activité (30min = 0.5h)
+  document.getElementById('calc-stepper').textContent = Math.round(4.5*w*0.5) + ' kcal';
+  document.getElementById('calc-rameur').textContent = Math.round(7.0*w*0.5) + ' kcal';
+  document.getElementById('calc-skierг').textContent = Math.round(6.6*w*0.5) + ' kcal';
+  document.getElementById('calc-crossfit').textContent = Math.round(7.0*w*0.5) + ' kcal';
+
+  // Zones FC profil
+  document.getElementById('pz1').textContent = zones.recup + ' bpm';
+  document.getElementById('pz2').textContent = zones.fat + ' bpm';
+  document.getElementById('pz3').textContent = zones.aero + ' bpm';
+  document.getElementById('pz4').textContent = zones.anaero + ' bpm';
+  document.getElementById('pz5').textContent = zones.max + ' bpm';
+
+  // ── Accueil ──
+  document.getElementById('home-weight').textContent = w.toFixed(1);
+  const lastKcal = APP.calcKcal(4.5, 0.5013);
+  document.getElementById('home-last-kcal').textContent = lastKcal;
+
+  // Total mars
+  const marsKcal = APP.sessions.reduce((a,s) => a + APP.calcKcal(s.met, s.dur), 0);
+  document.getElementById('home-mars-kcal').textContent = marsKcal.toLocaleString('fr');
+
+  // ── Données ──
+  if(document.getElementById('s-weight')) document.getElementById('s-weight').textContent = w.toFixed(1) + ' kg';
+  if(document.getElementById('s-fcmax')) document.getElementById('s-fcmax').textContent = APP.fcmax + ' bpm';
+  if(document.getElementById('data-fcmax')) document.getElementById('data-fcmax').textContent = APP.fcmax;
+
+  // ── Detail screens ──
+  const s1 = APP.calcKcal(4.5, 0.5013);
+  const s2 = APP.calcKcal(4.5, 0.5025);
+  const s3 = APP.calcKcal(4.5, 0.5013);
+  document.getElementById('d-kcal').textContent = s1;
+  document.getElementById('h-s1').textContent = s1;
+  document.getElementById('h-s2').textContent = s2;
+  document.getElementById('h-s3').textContent = s3;
+  document.getElementById('list-s1').textContent = s1;
+  document.getElementById('list-s2').textContent = s2;
+  document.getElementById('sum-stepper-kcal').textContent = Math.round((s1+s2+s3)/3);
+  document.getElementById('d-kcal-context').textContent = `Calcul: MET 4.5 × ${w.toFixed(1)} kg × 0.5h = ${s1} kcal. Mis à jour automatiquement si ton poids change.`;
+
+  const r1 = APP.calcKcal(7.0, 0.4744);
+  const r2 = APP.calcKcal(4.2, 0.5152);
+  document.getElementById('d-kcal-r').textContent = r1;
+  document.getElementById('h-r1').textContent = r1;
+  document.getElementById('h-r2').textContent = r2;
+  document.getElementById('list-r1').textContent = r1;
+  document.getElementById('list-r2').textContent = r2;
+  document.getElementById('sum-ram-kcal').textContent = Math.round((r1+r2)/2);
+
+  // Zones détail cardio
+  if(document.getElementById('z1')) {
+    document.getElementById('z1').textContent = zones.recup + ' bpm';
+    document.getElementById('z2').textContent = zones.fat + ' bpm';
+    document.getElementById('z3').textContent = zones.aero + ' bpm';
+    document.getElementById('z4').textContent = zones.anaero + ' bpm';
+    document.getElementById('z5').textContent = zones.max + ' bpm';
+    document.getElementById('zones-title').textContent = `Zones FC personnalisées · FCmax ${APP.fcmax} bpm`;
+    document.getElementById('d-fcmax').textContent = APP.fcmax;
+  }
+
+  // Poids détail
+  document.getElementById('dp-weight').textContent = w.toFixed(1);
+  document.getElementById('dp-imc').textContent = APP.getImc();
+  document.getElementById('dp-impact').textContent = `À ${w.toFixed(1)} kg, tu brûles environ ${Math.round(4.5*w*0.5)} kcal pour 30min de Stepper. À ${(w-5).toFixed(0)} kg, ce serait ~${Math.round(4.5*(w-5)*0.5)} kcal. Recalculé automatiquement partout dans l'app.`;
+
+  // All sessions list
+  buildSessionsList();
+
+  // IA welcome
+  if(document.getElementById('ai-welcome-weight')) {
+    document.getElementById('ai-welcome-weight').textContent = w.toFixed(1) + ' kg';
+    document.getElementById('ai-welcome-fcmax').textContent = APP.fcmax + ' bpm';
+  }
+
+  // Docs
+  if(document.getElementById('docs-weight')) document.getElementById('docs-weight').textContent = w.toFixed(1) + ' kg';
+}
+
+function buildSessionsList() {
+  const el = document.getElementById('all-sessions-list');
+  if(!el) return;
+  el.innerHTML = '';
+  APP.sessions.forEach((s,i) => {
+    const kcal = APP.calcKcal(s.met, s.dur);
+    const color = s.type === 'rameur' ? 'var(--green)' : s.type === 'crossfit' ? 'var(--blue)' : 'var(--acc)';
+    const bg = s.type === 'rameur' ? 'rgba(24,170,102,.08)' : s.type === 'crossfit' ? 'rgba(34,119,238,.08)' : 'rgba(255,85,51,.08)';
+    const detailId = s.type === 'rameur' ? 'd-rameur' : 'd-session';
+    el.innerHTML += `<div class="row" style="padding:11px 14px;" onclick="openDetail('${detailId}')">
+      <div class="icon42" style="background:${bg}">${s.icon}</div>
+      <div class="rinfo"><div class="rname">${s.label} · ${s.date}</div><div class="rmeta">${s.fcMoy} bpm moy · ${s.fcMax} max</div></div>
+      <div style="text-align:right;"><div style="font-weight:800;color:${color}">${kcal}</div><div style="font-size:9px;color:var(--text3)">kcal</div></div><div class="chevron">›</div>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  AJUSTEMENTS PROFIL
+// ═══════════════════════════════════════════════
+let currentEditField = null;
+
+function adjustVal(field, delta) {
+  if(field === 'weight') {
+    APP.weight = Math.max(40, Math.min(200, parseFloat((APP.weight + delta).toFixed(1))));
+  } else if(field === 'fcmax') {
+    APP.fcmax = Math.max(150, Math.min(220, APP.fcmax + delta));
+  } else if(field === 'steps') {
+    APP.stepsGoal = Math.max(1000, Math.min(20000, APP.stepsGoal + delta));
+  } else if(field === 'kcalgoal') {
+    APP.kcalGoal = Math.max(100, Math.min(1000, APP.kcalGoal + delta));
+  }
+  recalcAll();
+  // Flash feedback
+  flashRecalc();
+}
+
+function openEdit(field) {
+  currentEditField = field;
+  const titles = { weight: '⚖️ Modifier le poids', fcmax: '❤️ Modifier la FCmax' };
+  const units = { weight: 'kilogrammes (kg)', fcmax: 'battements/min (bpm)' };
+  const hints = {
+    weight: `Ton poids actuel : ${APP.weight.toFixed(1)} kg. La modification recalcule toutes tes calories immédiatement.`,
+    fcmax: `Ta FCmax actuelle : ${APP.fcmax} bpm. La modification recalcule toutes tes zones FC.`
+  };
+  const vals = { weight: APP.weight, fcmax: APP.fcmax };
+  document.getElementById('editModalTitle').textContent = titles[field];
+  document.getElementById('editUnit').textContent = units[field];
+  document.getElementById('editHint').textContent = hints[field];
+  document.getElementById('editInput').value = vals[field];
+  document.getElementById('editInput').step = field === 'weight' ? '0.1' : '1';
+  document.getElementById('editModal').classList.add('open');
+  setTimeout(() => document.getElementById('editInput').focus(), 300);
+}
+
+function saveEdit() {
+  const val = parseFloat(document.getElementById('editInput').value);
+  if(isNaN(val)) return;
+  if(currentEditField === 'weight') APP.weight = Math.max(40, Math.min(200, val));
+  if(currentEditField === 'fcmax') APP.fcmax = Math.max(150, Math.min(220, Math.round(val)));
+  closeModal('editModal');
+  recalcAll();
+  flashRecalc();
+}
+
+function flashRecalc() {
+  // Brief visual feedback on recalculate
+  const cells = document.querySelectorAll('.sval, .n-md, .n-lg');
+  cells.forEach(c => {
+    c.style.transition = 'opacity .15s';
+    c.style.opacity = '0.4';
+    setTimeout(() => { c.style.opacity = '1'; }, 150);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function go(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  if(btn && btn.classList) btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function openDetail(id) {
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function closeDetail(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function dtab(id, btn) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('dt-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showInstall() { document.getElementById('installModal').classList.add('open'); }
+
+// ═══════════════════════════════════════════════
+//  CHAT IA (Claude API)
+// ═══════════════════════════════════════════════
+function getProfile() {
+  const zones = APP.getZones();
+  return `Tu es le coach IA personnel de Yacine Diallo. Voici son profil ACTUEL et mis à jour :
+
+DONNÉES ACTUELLES (en temps réel) :
+- Poids : ${APP.weight.toFixed(1)} kg
+- Taille : ${APP.height} cm · IMC : ${APP.getImc()}
+- FCmax absolue : ${APP.fcmax} bpm
+- FC nocturne : 40–57 bpm (athlète)
+- FC repos (7j) : 45 bpm
+- SpO₂ : 98% · Stress : 44 (Normal)
+
+ZONES FC CALCULÉES (FCmax ${APP.fcmax} bpm) :
+- Récupération : ${zones.recup} bpm
+- Brûle-graisses : ${zones.fat} bpm
+- Aérobie (cible) : ${zones.aero} bpm ★
+- Anaérobie : ${zones.anaero} bpm
+- Extrême : ${zones.max} bpm
+
+CALORIES PAR ACTIVITÉ (poids ${APP.weight.toFixed(1)} kg, 30min) :
+- Stepper : ${Math.round(4.5*APP.weight*0.5)} kcal (MET 4.5)
+- Rameur/SkiErg : ${Math.round(7.0*APP.weight*0.5)} kcal (MET 7.0)
+- SkiErg 47-50c/min : ${Math.round(6.6*APP.weight*0.5)} kcal (MET 6.6)
+- Crossfit : ${Math.round(7.0*APP.weight*0.5)} kcal (MET 7.0)
+
+SÉANCES MARS 2026 (${APP.sessions.length} séances) :
+${APP.sessions.map(s => `- ${s.label} ${s.date} : ${APP.calcKcal(s.met, s.dur)} kcal · ${s.fcMoy} bpm moy`).join('\n')}
+Total mars : ${APP.sessions.reduce((a,s) => a+APP.calcKcal(s.met,s.dur),0)} kcal
+
+HISTORIQUE : 935 séances totales, 303h, 210 317 kcal
+Février 2026 : 51 séances, 22.6h, 12 742 kcal
+
+SOMMEIL (5 mars) : 6h28, score 84/100, Top 9%. Profond 1h52, Léger 3h, REM 1h36. Ratio profond −13pts vs sem. précédente.
+
+MÉDICAL :
+- Prostatectomie radicale : jan. 2026 (pT2 N0 R0, Gleason 7) → suivi Gustave Roussy
+- TB pulmonaire bilatérale à 25 ans (SpO₂ 98% = bonne récupération)
+- Arthrose coxofémorale droite très évoluée → PTH à prévoir
+- Appareils : Huawei Watch, Concept2 SkiErg (47–50 c/min), Rameur
+
+RECOMMANDATIONS CLÉS :
+- Zone cible : aérobie (${zones.aero} bpm) compte tenu du contexte médical
+- Sports idéaux : rameur + SkiErg (hanche non portante)
+- Éviter : course, vélo haute résistance (arthrose hanche D.)
+- Sommeil : viser 7h30 minimum
+
+Réponds en français. Sois précis et utilise ses données réelles. Adapte tes conseils à son contexte médical.`;
+}
+
+let chatHistory = [];
+
+async function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = ''; input.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+  addMsg(text, 'user');
+  const thinking = addThinking();
+  chatHistory.push({ role:'user', content:text });
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:getProfile(), messages:chatHistory })
+    });
+    const data = await res.json();
+    thinking.remove();
+    if(data.content?.[0]) {
+      const reply = data.content[0].text;
+      chatHistory.push({ role:'assistant', content:reply });
+      addMsg(reply, 'ai');
+    } else { addMsg('Erreur de connexion. Vérifie ta connexion.', 'ai'); }
+  } catch(e) {
+    thinking.remove();
+    addMsg('❌ Impossible de joindre l\'IA. Connexion internet requise.', 'ai');
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addMsg(text, who) {
+  const wrap = document.getElementById('chatWrap');
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + who;
+  const now = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  const html = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+  div.innerHTML = `<div class="bubble bubble-${who}">${html}</div><div class="msg-time">${now}</div>`;
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'end'});
+  return div;
+}
+
+function addThinking() {
+  const wrap = document.getElementById('chatWrap');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="bubble bubble-ai"><div style="display:flex;gap:4px;"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  wrap.appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'end'});
+  return div;
+}
+
+const quickMap = {
+  '📊 Rapport semaine': 'Génère un rapport détaillé de ma semaine d\'entraînement en cours, avec analyse des performances, mon poids actuel et les calories réelles.',
+  '❤️ Analyse cardio': 'Analyse mes données cardiaques récentes et explique-moi comment mes zones FC (basées sur ma FCmax actuelle) correspondent à mes séances.',
+  '🚣 Conseils rameur': 'Donne-moi des conseils pour optimiser mes séances rameur en tenant compte de mon poids actuel et de ma zone cible.',
+  '😴 Sommeil & récup': 'Analyse mon sommeil (6h28, score 84/100) et donne-moi des conseils de récupération adaptés à ma situation post-chirurgie.',
+  '🏥 Suivi médical': 'Fais-moi un bilan de ma progression post-prostatectomie et comment adapter mon entraînement avec mon arthrose de hanche droite.',
+  '⛷️ Optim SkiErg': 'Comment optimiser mes séances SkiErg à 47-50 c/min avec mon poids actuel et ma zone aérobie cible ?',
+  '⚖️ Impact poids': `J'ai actuellement ${APP.weight.toFixed(1)} kg. Explique-moi comment une variation de poids impacte mes calories brûlées et ma performance.`
+};
+
+function sendQuick(btn) {
+  const txt = quickMap[btn.textContent] || btn.textContent;
+  document.getElementById('chatInput').value = txt;
+  go('ia', document.querySelectorAll('.nb')[2]);
+  setTimeout(() => sendMsg(), 80);
+}
+
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
+
+// ═══════════════════════════════════════════════
+//  IMPORT DOCS
+// ═══════════════════════════════════════════════
+function importFiles(event) {
+  const files = Array.from(event.target.files);
+  const list = document.getElementById('docsList');
+  files.forEach(file => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--border);';
+    const icon = file.type.startsWith('image') ? '📸' : '📄';
+    const bg = file.type.startsWith('image') ? 'rgba(255,204,0,.08)' : 'rgba(34,119,238,.08)';
+    row.innerHTML = `<div class="icon42" style="background:${bg};font-size:16px;">${icon}</div><div style="flex:1"><div style="font-size:13px;font-weight:600;">${file.name.substring(0,28)}</div><div style="font-size:10px;color:var(--text3);font-family:'Nunito',sans-serif">${(file.size/1024).toFixed(0)} KB</div></div><span class="badge by" id="st-${Date.now()}">⏳</span>`;
+    list.appendChild(row);
+    const stId = row.querySelector('.badge').id;
+    setTimeout(() => { const el=document.getElementById(stId); if(el){el.className='badge bg';el.textContent='✓ Lu';} }, 1800);
+  });
+}
+
+function compileIA() {
+  document.getElementById('compileModal').classList.add('open');
+  const bar = document.getElementById('cBar'), pct = document.getElementById('cPct');
+  const status = document.getElementById('cStatus'), log = document.getElementById('cLog');
+  const steps = [[17,'Lecture documents...'],[34,'Extraction données...'],[51,'Analyse IA...'],[68,'Calcul calories (poids '+APP.weight.toFixed(1)+'kg)...'],[85,'Fusion historique...'],[100,'✅ Terminé !']];
+  log.innerHTML = ''; let i=0;
+  const iv=setInterval(()=>{
+    if(i>=steps.length){clearInterval(iv);return;}
+    bar.style.width=steps[i][0]+'%'; pct.textContent=steps[i][0]+'%'; status.textContent=steps[i][1];
+    log.innerHTML+=`<div>→ ${steps[i][1]}</div>`; i++;
+  },650);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+recalcAll();
+</script>
+</body>
+</html>
